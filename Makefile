@@ -1,5 +1,8 @@
 default: all
 
+thrift_proto: distbench.thrift
+	../../opt/thrift/bin/thrift --gen cpp distbench.thrift
+
 testlog:
 	bazel test --test_output=all :all
 
@@ -22,7 +25,7 @@ clang-format:
 		clang-format -i -style=file $${file};\
 	done
 
-all:
+all: thrift_proto
 	bazel build :all
 
 clean:
