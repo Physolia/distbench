@@ -303,15 +303,6 @@ cc_binary(
     ],
 )
 
-cc_binary(
-    name = "thrift_test",
-    srcs = ["thrift_test.cc"],
-    deps = [
-        ":distbench_thrift_lib",
-        "@apache_thrift//:thrift",
-    ],
-)
-
 cc_library(
     name = "protocol_driver_thrift",
     srcs = [
