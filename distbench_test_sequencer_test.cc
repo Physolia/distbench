@@ -432,7 +432,19 @@ TEST(DistBenchTestSequencer,
   RunIntenseTrafficMaxDurationMaxIteration("grpc_async_callback");
 }
 
-TEST(DistBenchTestSequencer, CliqueTest) {
+TEST(DistBenchTestSequencer, RunIntenseTrafficMaxDurationThrift) {
+  RunIntenseTrafficMaxDuration("thrift");
+}
+
+TEST(DistBenchTestSequencer, RunIntenseTrafficMaxIterationThrift) {
+  RunIntenseTrafficMaxIteration("thrift");
+}
+
+TEST(DistBenchTestSequencer, RunIntenseTrafficMaxDurationMaxIterationThrift) {
+  RunIntenseTrafficMaxDurationMaxIteration("thrift");
+}
+
+TEST(DistBenchTestSequencer, clique_test) {
   int nb_cliques = 3;
 
   DistBenchTester tester;
