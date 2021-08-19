@@ -432,6 +432,7 @@ TEST(DistBenchTestSequencer,
   RunIntenseTrafficMaxDurationMaxIteration("grpc_async_callback");
 }
 
+#ifdef WITH_THRIFT
 TEST(DistBenchTestSequencer, RunIntenseTrafficMaxDurationThrift) {
   RunIntenseTrafficMaxDuration("thrift");
 }
@@ -443,6 +444,7 @@ TEST(DistBenchTestSequencer, RunIntenseTrafficMaxIterationThrift) {
 TEST(DistBenchTestSequencer, RunIntenseTrafficMaxDurationMaxIterationThrift) {
   RunIntenseTrafficMaxDurationMaxIteration("thrift");
 }
+#endif
 
 TEST(DistBenchTestSequencer, clique_test) {
   int nb_cliques = 3;

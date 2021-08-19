@@ -25,8 +25,14 @@ clang-format:
 		clang-format -i -style=file $${file};\
 	done
 
-all: thrift_proto
-	bazel build :all
+all:
+	bazel build :distbench
+
+test_with_thrift: thrift_proto
+	bazel test :all --//:with-thrift
+
+all_with_thrift: thrift_proto
+	bazel build :distbench --//:with-thrift
 
 clean:
 	bazel clean

@@ -285,8 +285,10 @@ INSTANTIATE_TEST_SUITE_P(ProtocolDriverTests, ProtocolDriverTest,
                              GrpcOptions(),
                              GrpcCallbackOptions(),
                              GrpcClientCQServerCBOptions(),
-                             GrpcClientCBServerNormalOptions(),
-                             ThriftOptions()
+#ifdef WITH_THRIFT
+                             ThriftOptions(),
+#endif
+                             GrpcClientCBServerNormalOptions()
                              )
                          );
 // clang-format on
