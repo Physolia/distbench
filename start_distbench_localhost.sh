@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+DISTBENCH_EXTRA_BAZEL_OPTIONS="${DISTBENCH_EXTRA_BAZEL_OPTIONS:-}"
+
 check_dependencies() {
   # Verify that the needed tools are presents
   #
