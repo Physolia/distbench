@@ -292,6 +292,9 @@ cc_library(
     deps = [
         "@apache_thrift//:thrift",
     ],
+    tags = [
+        "manual"
+    ],
 )
 
 cc_test(
@@ -344,5 +347,8 @@ cc_library(
         ":protocol_driver_api",
         ":distbench_thrift_lib",
         "@apache_thrift//:thrift",
+    ],
+    tags = [
+        "manual"
     ],
 )
