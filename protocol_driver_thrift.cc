@@ -82,7 +82,7 @@ ProtocolDriverThrift::ProtocolDriverThrift() {
 }
 
 absl::Status ProtocolDriverThrift::Initialize(
-      const ProtocolDriverOptions &pd_opts, int* port) {
+    const ProtocolDriverOptions &pd_opts, int* port) {
   absl::MutexLock m(&mutex_server_);
 
   if (server_initialized_) {
@@ -91,12 +91,13 @@ absl::Status ProtocolDriverThrift::Initialize(
   }
 
   std::string netdev_name = pd_opts.netdev_name();
-  server_ip_address_ = IpAddressForDevice(netdev_name);
+  auto maybe_ip = IpAddressForDevice(netdev_name);
+  if (!maybe_ip.ok()) return maybe_ip.status();
+  server_ip_address_ = maybe_ip.value();
 
   thrift_handler_ = std::make_unique<DistbenchThriftHandler>();
   thrift_processor_ = std::make_unique<DistbenchProcessor>(thrift_handler_);
-  TServerSocket *socket = new TServerSocket(IpAddressForDevice(netdev_name),
-                                            *port);
+  TServerSocket *socket = new TServerSocket(server_ip_address_.ip(), *port);
   thrift_serverTransport_ = std::shared_ptr<TServerTransport>(socket);
   thrift_transportFactory_ = std::make_unique<TBufferedTransportFactory>();
   thrift_protocolFactory_ = std::make_unique<TBinaryProtocolFactory>();
@@ -113,11 +114,11 @@ absl::Status ProtocolDriverThrift::Initialize(
     ;
   *port = socket->getPort();
   server_port_ = *port;
-  server_socket_address_ = SocketAddressForDevice(netdev_name, *port);
-  LOG(INFO) << "Thrift server listening on " << server_socket_address_;
+  server_socket_address_ = SocketAddressForIp(server_ip_address_, *port);
 
   server_initialized_ = true;
-
+  LOG(INFO) << "Thrift server listening on "
+            << server_socket_address_;
   return absl::OkStatus();
 }
 
@@ -138,7 +139,7 @@ ProtocolDriverThrift::~ProtocolDriverThrift() {
 absl::StatusOr<std::string> ProtocolDriverThrift::HandlePreConnect(
       std::string_view remote_connection_info, int peer) {
   ServerAddress addr;
-  addr.set_ip_address(server_ip_address_);
+  addr.set_ip_address(server_ip_address_.ip());
   addr.set_port(server_port_);
   addr.set_socket_address(server_socket_address_);
   std::string ret;

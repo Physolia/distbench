@@ -95,8 +95,7 @@ class ProtocolDriverThrift : public ProtocolDriver {
   std::atomic<int> pending_rpcs_ = 0;
   std::vector<ThriftPeerClient> thrift_peer_clients_;
   int server_port_ = 0;
-
-  std::string server_ip_address_;
+  DeviceIpAddress server_ip_address_;
   std::string server_socket_address_;
 
   std::thread server_thread_;
