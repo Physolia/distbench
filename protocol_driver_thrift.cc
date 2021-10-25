@@ -60,17 +60,22 @@ void DistbenchThriftHandler::GenericRPC(
     std::string& _return,
     const std::string& payload) {
 
-  ServerRpcState rpc_state;
-  distbench::GenericRequest request;
-  bool success = request.ParseFromString(payload);
+  ServerRpcState* rpc_state = new ServerRpcState;
+
+  distbench::GenericRequest *request = new distbench::GenericRequest();
+  bool success = request->ParseFromString(payload);
   if (!success) {
     LOG(ERROR) << "Unable to decode payload of received GenericRPC (Thrift) !";
   }
-  rpc_state.request = &request;
-  rpc_state.send_response = [&]() {
-    rpc_state.response.SerializeToString(&_return);
+  rpc_state->request = request;
+  rpc_state->have_dedicated_thread = true;
+  rpc_state->send_response = [&]() {
+    rpc_state->response.SerializeToString(&_return);
   };
-  handler_(&rpc_state);
+  rpc_state->free_state = [=]() {
+    delete rpc_state;
+  };
+  handler_(rpc_state);
 }
 
 void DistbenchThriftHandler::SetHandler(
