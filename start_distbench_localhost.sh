@@ -30,7 +30,7 @@ build_distbench() {
   # Build Distbench
   #
   echo Attempting to build DistBench...
-  if ! echo_and_run bazel build :distbench $BAZEL_COMPILATION_OPTIONS
+  if ! echo_and_run bazel build :distbench -c $COMPILATION_MODE $DISTBENCH_EXTRA_BAZEL_OPTIONS
   then
     echo DistBench did not build successfully.
     exit 2

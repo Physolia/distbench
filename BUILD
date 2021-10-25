@@ -169,6 +169,10 @@ cc_test(
         "@com_google_benchmark//:benchmark",
         "@com_github_google_glog//:glog"
     ],
+    copts = select({
+        ":with_thrift":["-DWITH_THRIFT"],
+        "//conditions:default": []
+    })
 )
 
 cc_binary(
@@ -241,6 +245,10 @@ cc_test(
         "@com_github_grpc_grpc//:grpc++",
         "@com_google_googletest//:gtest_main",
     ],
+    copts = select({
+        ":with_thrift":["-DWITH_THRIFT"],
+        "//conditions:default": []
+    })
 )
 
 cc_library(
