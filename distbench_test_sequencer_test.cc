@@ -432,6 +432,7 @@ TEST(DistBenchTestSequencer,
   RunIntenseTrafficMaxDurationMaxIteration("grpc_async_callback");
 }
 
+#ifdef WITH_MERCURY
 TEST(DistBenchTestSequencer, RunIntenseTrafficMaxDurationMercury) {
   RunIntenseTrafficMaxDuration("mercury");
 }
@@ -443,6 +444,7 @@ TEST(DistBenchTestSequencer, RunIntenseTrafficMaxIterationMercury) {
 TEST(DistBenchTestSequencer, RunIntenseTrafficMaxDurationMaxIterationMercury) {
   RunIntenseTrafficMaxDurationMaxIteration("mercury");
 }
+#endif
 
 TEST(DistBenchTestSequencer, clique_test) {
   int nb_cliques = 3;
