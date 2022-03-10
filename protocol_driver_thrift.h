@@ -15,16 +15,16 @@
 #ifndef DISTBENCH_PROTOCOL_DRIVER_THRIFT_H_
 #define DISTBENCH_PROTOCOL_DRIVER_THRIFT_H_
 
-#include "distbench_utils.h"
-#include "protocol_driver.h"
-
-#include "Distbench.h"
 #include <thrift/protocol/TBinaryProtocol.h>
 #include <thrift/server/TSimpleServer.h>
 #include <thrift/server/TThreadedServer.h>
-#include <thrift/transport/TServerSocket.h>
 #include <thrift/transport/TBufferTransports.h>
+#include <thrift/transport/TServerSocket.h>
 #include <thrift/transport/TSocket.h>
+
+#include "Distbench.h"
+#include "distbench_utils.h"
+#include "protocol_driver.h"
 
 namespace distbench {
 
@@ -33,14 +33,13 @@ using namespace ::apache::thrift::protocol;
 using namespace ::apache::thrift::transport;
 using namespace ::apache::thrift::server;
 
-using namespace  ::thrift;
+using namespace ::thrift;
 
 class DistbenchThriftHandler : virtual public DistbenchIf {
  public:
-  DistbenchThriftHandler() { }
+  DistbenchThriftHandler() {}
 
-  void GenericRPC(std::string& _return, const
-                  std::string& generic_request);
+  void GenericRPC(std::string& _return, const std::string& generic_request);
 
   void SetHandler(std::function<void(ServerRpcState* state)> handler);
 
@@ -59,6 +58,7 @@ class ThriftPeerClient {
 
   absl::Status HandleConnect(std::string ip_address, int port);
   std::unique_ptr<DistbenchClient> client_;
+
  private:
   std::shared_ptr<TSocket> socket_;
   std::shared_ptr<TTransport> transport_;
@@ -70,15 +70,15 @@ class ProtocolDriverThrift : public ProtocolDriver {
   ProtocolDriverThrift();
   ~ProtocolDriverThrift() override;
 
-  absl::Status Initialize(
-      const ProtocolDriverOptions &pd_opts, int* port) override;
+  absl::Status Initialize(const ProtocolDriverOptions& pd_opts,
+                          int* port) override;
 
   void SetHandler(std::function<void(ServerRpcState* state)> handler) override;
   void SetNumPeers(int num_peers) override;
 
   // Connects to the actual Thrift service.
-  absl::Status HandleConnect(
-      std::string remote_connection_info, int peer) override;
+  absl::Status HandleConnect(std::string remote_connection_info,
+                             int peer) override;
 
   // Returns the address of the Thrift service.
   absl::StatusOr<std::string> HandlePreConnect(
@@ -100,16 +100,16 @@ class ProtocolDriverThrift : public ProtocolDriver {
 
   std::thread server_thread_;
 
-  std::shared_ptr<DistbenchThriftHandler>  thrift_handler_;
-  std::shared_ptr<TProcessor>        thrift_processor_;
-  std::shared_ptr<TServerTransport>  thrift_serverTransport_;
+  std::shared_ptr<DistbenchThriftHandler> thrift_handler_;
+  std::shared_ptr<TProcessor> thrift_processor_;
+  std::shared_ptr<TServerTransport> thrift_serverTransport_;
   std::shared_ptr<TTransportFactory> thrift_transportFactory_;
-  std::shared_ptr<TProtocolFactory>  thrift_protocolFactory_;
+  std::shared_ptr<TProtocolFactory> thrift_protocolFactory_;
 
-  std::unique_ptr<TThreadedServer>   thrift_server_;
+  std::unique_ptr<TThreadedServer> thrift_server_;
 
   mutable absl::Mutex mutex_server_;
-  bool server_initialized_ ABSL_GUARDED_BY(mutex_server_) = false ;
+  bool server_initialized_ ABSL_GUARDED_BY(mutex_server_) = false;
 };
 
 }  // namespace distbench

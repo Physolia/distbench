@@ -14,17 +14,16 @@
 
 #include "protocol_driver_thrift.h"
 
-#include "distbench_utils.h"
 #include <glog/logging.h>
-
-#include "Distbench.h"
+#include <sys/types.h>
 #include <thrift/protocol/TBinaryProtocol.h>
 #include <thrift/server/TThreadedServer.h>
-#include <thrift/transport/TServerSocket.h>
 #include <thrift/transport/TBufferTransports.h>
-
+#include <thrift/transport/TServerSocket.h>
 #include <unistd.h>
-#include <sys/types.h>
+
+#include "Distbench.h"
+#include "distbench_utils.h"
 
 namespace distbench {
 
@@ -33,8 +32,7 @@ using namespace ::apache::thrift::protocol;
 using namespace ::apache::thrift::transport;
 using namespace ::apache::thrift::server;
 
-absl::Status ThriftPeerClient::HandleConnect(
-    std::string ip_address, int port) {
+absl::Status ThriftPeerClient::HandleConnect(std::string ip_address, int port) {
   socket_ = std::make_shared<TSocket>(ip_address, port);
   transport_ = std::make_shared<TBufferedTransport>(socket_);
   protocol_ = std::make_shared<TBinaryProtocol>(transport_);
@@ -56,13 +54,11 @@ ThriftPeerClient::~ThriftPeerClient() {
   socket_.reset();
 }
 
-void DistbenchThriftHandler::GenericRPC(
-    std::string& _return,
-    const std::string& payload) {
-
+void DistbenchThriftHandler::GenericRPC(std::string& _return,
+                                        const std::string& payload) {
   ServerRpcState* rpc_state = new ServerRpcState;
 
-  distbench::GenericRequest *request = new distbench::GenericRequest();
+  distbench::GenericRequest* request = new distbench::GenericRequest();
   bool success = request->ParseFromString(payload);
   if (!success) {
     LOG(ERROR) << "Unable to decode payload of received GenericRPC (Thrift) !";
@@ -72,9 +68,7 @@ void DistbenchThriftHandler::GenericRPC(
   rpc_state->send_response = [&]() {
     rpc_state->response.SerializeToString(&_return);
   };
-  rpc_state->free_state = [=]() {
-    delete rpc_state;
-  };
+  rpc_state->free_state = [=]() { delete rpc_state; };
   handler_(rpc_state);
 }
 
@@ -83,11 +77,10 @@ void DistbenchThriftHandler::SetHandler(
   handler_ = handler;
 }
 
-ProtocolDriverThrift::ProtocolDriverThrift() {
-}
+ProtocolDriverThrift::ProtocolDriverThrift() {}
 
 absl::Status ProtocolDriverThrift::Initialize(
-    const ProtocolDriverOptions &pd_opts, int* port) {
+    const ProtocolDriverOptions& pd_opts, int* port) {
   absl::MutexLock m(&mutex_server_);
 
   if (server_initialized_) {
@@ -102,18 +95,17 @@ absl::Status ProtocolDriverThrift::Initialize(
 
   thrift_handler_ = std::make_unique<DistbenchThriftHandler>();
   thrift_processor_ = std::make_unique<DistbenchProcessor>(thrift_handler_);
-  TServerSocket *socket = new TServerSocket(server_ip_address_.ip(), *port);
+  TServerSocket* socket = new TServerSocket(server_ip_address_.ip(), *port);
   thrift_serverTransport_ = std::shared_ptr<TServerTransport>(socket);
   thrift_transportFactory_ = std::make_unique<TBufferedTransportFactory>();
   thrift_protocolFactory_ = std::make_unique<TBinaryProtocolFactory>();
-  thrift_server_ = std::make_unique<TThreadedServer>(thrift_processor_,
-                                                     thrift_serverTransport_,
-                                                     thrift_transportFactory_,
-                                                     thrift_protocolFactory_);
-  server_thread_ = std::thread { [&](){
+  thrift_server_ = std::make_unique<TThreadedServer>(
+      thrift_processor_, thrift_serverTransport_, thrift_transportFactory_,
+      thrift_protocolFactory_);
+  server_thread_ = std::thread{[&]() {
     thrift_server_->serve();
     LOG(INFO) << "thrift_server_ stopped serving";
-  } };
+  }};
 
   while (!socket->isOpen())
     ;
@@ -122,8 +114,7 @@ absl::Status ProtocolDriverThrift::Initialize(
   server_socket_address_ = SocketAddressForIp(server_ip_address_, *port);
 
   server_initialized_ = true;
-  LOG(INFO) << "Thrift server listening on "
-            << server_socket_address_;
+  LOG(INFO) << "Thrift server listening on " << server_socket_address_;
   return absl::OkStatus();
 }
 
@@ -142,7 +133,7 @@ ProtocolDriverThrift::~ProtocolDriverThrift() {
 }
 
 absl::StatusOr<std::string> ProtocolDriverThrift::HandlePreConnect(
-      std::string_view remote_connection_info, int peer) {
+    std::string_view remote_connection_info, int peer) {
   ServerAddress addr;
   addr.set_ip_address(server_ip_address_.ip());
   addr.set_port(server_port_);
@@ -195,7 +186,7 @@ void ProtocolDriverThrift::InitiateRpc(
 
   std::string response_encoded;
   thrift_peer_clients_[peer_index].client_->GenericRPC(response_encoded,
-      request_encoded);
+                                                       request_encoded);
   bool success = new_rpc->response.ParseFromString(response_encoded);
   if (!success) {
     LOG(ERROR) << "Unable to decode payload";
